@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hello_world/home/controller.dart';
+import 'package:hello_world/pt/proto/role/role_message.pb.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:get/get.dart';
 
 class HomePage extends StatelessWidget {
   final _homeController = Get.put(HomeController());
 
+  HomePage() {
+    _homeController.find(filterText: "%a%");
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,16 +129,18 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildListView() {
-    return ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: 10,
-        itemBuilder: (BuildContext context, int index) {
-          return _buildItem(index);
-        });
+    return Obx(() =>
+       ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: _homeController.data$.length,
+          itemBuilder: (BuildContext context, int index) {
+            return _buildItem(_homeController.data$[index]);
+          }),
+    );
   }
 
-  Widget _buildItem(int index) {
+  Widget _buildItem(Role role) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Container(
@@ -148,18 +154,10 @@ class HomePage extends StatelessWidget {
             size: 40,
           ),
           title: Text(
-            "Title xxxx $index",
+            role.name??'',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          subtitle: Row(
-            children: [
-              Icon(Icons.style),
-              SizedBox(
-                width: 10,
-              ),
-              Icon(Icons.error),
-            ],
-          ),
+          subtitle: Text(role.code??''),
           trailing: Icon(Icons.list),
         ),
       ),
